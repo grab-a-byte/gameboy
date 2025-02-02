@@ -19,7 +19,7 @@ const Cartridge = struct {
         return if (self.DestinationCode == 0) "Japan" else "Overseas";
     }
 
-    pub fn LicenseeCode(self: *Cartridge) ![]u8 {
+    pub fn LicenseeCode(self: * const Cartridge) ![]u8 {
         return if (self.OldLicenseeCode == 33) self.NewLicense() else self.OldLicense();
     }
 
@@ -27,7 +27,7 @@ const Cartridge = struct {
         return error.NewLicenseNotImplemented;
     }
 
-    fn OldLicence() ![]u8 {
+    fn OldLicense() ![]u8 {
         return error.OldLicenceNotImplemented;
     }
 };
