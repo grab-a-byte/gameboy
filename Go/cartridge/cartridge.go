@@ -1,40 +1,58 @@
 package cartridge
-// index := slices.Index(data, 0xCE)
-// if index < 0 {
-// 	panic("Unable to find byte for header")
-// } else {
-// 	fmt.Println(index)
-// }
-// for _, b := range data[260:700] {
-// 	fmt.Printf("%x ", b)
-// }
+
+import "fmt"
+
+import "strings"
 
 type Cartridge struct {
 	Title            string
 	ManufacturerCode string //TODO: Need to check how this can be empty/null
-	newLicenseeCode  string
+	newLicenseeCode  []byte //Need an example where these are set to check encoding
 	oldLicenseeCode  byte
-	cartridgeType    int
+	cartridgeType    byte
 	romSize          int
 }
 
 func New(bytes []byte) *Cartridge {
 	return &Cartridge{
 		Title:           string(bytes[TITLE_START : TITLE_END+1]),
-		newLicenseeCode: string(bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1]), //May be wrong, might need to rethink
+		newLicenseeCode: bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1],
 		oldLicenseeCode: bytes[OLD_LICENSEE_CODE],
+		cartridgeType:   bytes[CARTRIDGE_TYPE],
 	}
 }
 
+func (c* Cartridge) String() string {
+	var builder strings.Builder
+	builder.WriteString("Title: ")
+	builder.WriteString(c.Title)
+	builder.WriteRune('\n')
+
+	builder.WriteString("Licensee: ")
+	builder.WriteString(c.License())
+	builder.WriteRune('\n')
+
+	builder.WriteString("Cartridge Type: ")
+	builder.WriteString(c.Type())
+	builder.WriteRune('\n')
+
+	builder.WriteString("Rom Size: ")
+	builder.WriteString(fmt.Sprint(c.RomSize()))
+	builder.WriteRune('\n')
+
+	return builder.String()
+}
+
 func (c *Cartridge) License() string {
-	if c.oldLicenseeCode == 0x33 {
+	if c.oldLicenseeCode != 0x33 {
 		value, ok := oldLicenseeCodeMap[c.oldLicenseeCode]
 		if !ok {
 			return "UNKNOWN"
 		}
 		return value
 	}
-	value, ok := newLicenseeCodeMap[c.newLicenseeCode]
+	code := string(rune(c.newLicenseeCode[0])) + string(rune(c.newLicenseeCode[1]))
+	value, ok := newLicenseeCodeMap[code]
 	if !ok {
 		return "UNKNOWN NEW"
 	}
@@ -47,68 +65,14 @@ func (c *Cartridge) RomSize() int {
 }
 
 func (c *Cartridge) Type() string {
-	switch c.cartridgeType {
-	case 0x00:
-		return "ROM_ONLY"
-	case 0x01:
-		return "MBC1"
-	case 0x02:
-		return "MBC1+RAM"
-	case 0x03:
-		return "MBC1+RAM+BATTERY"
-	case 0x05:
-		return "MBC2"
-	case 0x06:
-		return "MBC2+BATTERY"
-	case 0x08:
-		return "ROM+RAM"
-	case 0x09:
-		return "ROM+RAM+BATTERY"
-	case 0x0B:
-		return "MMM01"
-	case 0x0C:
-		return "MMM01+RAM"
-	case 0x0D:
-		return "MMM01+RAM+BATTERY"
-	case 0x0F:
-		return "MBC3+TIMER+BATTERY"
-	case 0x10:
-		return "MBC3+TIMER+RAM+BATTERY"
-	case 0x11:
-		return "MBC3"
-	case 0x12:
-		return "MBC3+RAM"
-	case 0x13:
-		return "MBC3+RAM+BATTERY"
-	case 0x19:
-		return "MBC5"
-	case 0x1A:
-		return "MBC5+RAM"
-	case 0x1B:
-		return "MBC5+RAM+BATTERY"
-	case 0x1C:
-		return "MBC5+RUMBLE"
-	case 0x1D:
-		return "MBC5+RUMBLE+RAM"
-	case 0x1E:
-		return "MBC5+RUMBLE+RAM+BATTERY"
-	case 0x20:
-		return "MBC6"
-	case 0x22:
-		return "MBC7+SENSOR+RUMBLE+RAM+BATTERY"
-	case 0xFC:
-		return "POCKET CAMERA"
-	case 0xFD:
-		return "BANDAI TAMA5"
-	case 0xFE:
-		return "HuC3"
-	case 0xFF:
-		return "HuC1+RAM+BATTERY"
+	value, ok := cartridgeTypeMap[c.cartridgeType]
+	if !ok {
+		return "Unknown cartridge type"
 	}
-
-	return "UNKNOWN cartridge type"
+	return value
 }
 
+// TODO: Solve later
 var newLicenseeCodeMap map[string]string = map[string]string{}
 
 var oldLicenseeCodeMap map[byte]string = map[byte]string{
@@ -258,4 +222,35 @@ var oldLicenseeCodeMap map[byte]string = map[byte]string{
 	0xF0: "A Wave",
 	0xF3: "Extreme Entertainment",
 	0xFF: "LJN",
+}
+
+var cartridgeTypeMap = map[byte]string{
+	0x00: "ROM ONLY",
+	0x01: "MBC1",
+	0x02: "MBC1 + RAM",
+	0x03: "MBC1+RAM+BATTERY",
+	0x05: "MBC2",
+	0x06: "MBC2+BATTERY",
+	0x08: "ROM+RAM",
+	0x09: "ROM+RAM+BATTERY",
+	0x0B: "MMM01",
+	0x0C: "MMM01+RAM",
+	0x0D: "MMM01+RAM+BATTERY",
+	0x0F: "MBC3+TIMER+BATTERY",
+	0x10: "MBC3+TIMER+RAM+BATTERY",
+	0x11: "MBC3",
+	0x12: "MBC3+RAM",
+	0x13: "MBC3+RAM+BATTERY",
+	0x19: "MBC5",
+	0x1A: "MBC5+RAM",
+	0x1B: "MBC5+RAM+BATTERY",
+	0x1C: "MBC5+RUMBLE",
+	0x1D: "MBC5+RUMBLE+RAM",
+	0x1E: "MBC5+RUMBLE+RAM+BATTERY",
+	0x20: "MBC6",
+	0x22: "MBC7+SENSOR+RUMBLE+RAM+BATTERY",
+	0xFC: "POCKET CAMERA",
+	0xFD: "BANDAI TAMA5",
+	0xFE: "HuC3",
+	0xFF: "HuC1+RAM+BATTERY",
 }
