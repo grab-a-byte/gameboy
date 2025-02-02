@@ -1,0 +1,1 @@
+Information: https://gbdev.io/pandocs/
