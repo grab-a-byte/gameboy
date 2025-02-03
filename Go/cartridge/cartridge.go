@@ -20,6 +20,7 @@ func New(bytes []byte) *Cartridge {
 		newLicenseeCode: bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1],
 		oldLicenseeCode: bytes[OLD_LICENSEE_CODE],
 		cartridgeType:   bytes[CARTRIDGE_TYPE],
+		romSize: int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
 	}
 }
 

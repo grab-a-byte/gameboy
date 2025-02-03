@@ -7,5 +7,6 @@ pub fn main() !void {
     const bytes = try std.fs.cwd().readFileAlloc(allocator, "example.gb", 1024 * 200);
 
     const cart = cartridge.New(bytes);
-    std.debug.print("{s}\n", .{cart.LicenseeCode()});
+    const str = cart.String(allocator) catch "WARNING!";
+    std.debug.print("{s}\n", .{str});
 }
