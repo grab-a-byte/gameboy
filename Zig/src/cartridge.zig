@@ -1,10 +1,10 @@
 const std = @import("std");
 
 const Cartridge = struct {
-    Title: [16]u8,
+    Title: []u8,
     ManufacturerCode: [4]u8,
     NewLicenseeCode: [2]u8,
-    CartrigeType: u8,
+    cartrigeType: u8,
     romSize: u8,
     OldLicenseeCode: u8,
 
@@ -12,145 +12,179 @@ const Cartridge = struct {
         return if (self.DestinationCode == 0) "Japan" else "Overseas";
     }
 
-    pub fn LicenseeCode(self: *const Cartridge) ![]u8 {
+    pub fn License(self: *const Cartridge) ![]const u8 {
         return if (self.OldLicenseeCode == 33) self.NewLicense() else self.OldLicense();
     }
 
-    fn NewLicense(self: *const Cartridge) ![]u8 {
-        return if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '0') {
-            "None";
-        } else if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '1') {
-            "Nintendo Research & Development";
-        } else if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '8') {
-            "Capcom";
-        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '3') {
-            "EA (Electronic Arts)";
-        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '8') {
-            "HudsonSoft";
-        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '9') {
-            "B-AI";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '0') {
-            "KSS";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '2') {
-            "Planning Office WADA";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '4') {
-            "PCM Complete";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '5') {
-            "San-X";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '8') {
-            "Kemco";
-        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '9') {
-            "SETA Corporation";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '0') {
-            "Viacom";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '1') {
-            "Nintendo";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '2') {
-            "Bandai";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '3') {
-            "Ocean Software / Acclaim Entertainment";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '4') {
-            "Konami";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '5') {
-            "HectorSoft";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '7') {
-            "Taito";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '8') {
-            "Hudson Soft";
-        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '9') {
-            "Banpresto";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '1') {
-            "Ubisoft";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '2') {
-            "Atlus";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '4') {
-            "Malibu Interactive";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '6') {
-            "Angel";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '7') {
-            "Bullet-Proof Software";
-        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '9') {
-            "Irem";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '0') {
-            "Absolute";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '1') {
-            "Acclaim Entertainment";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '2') {
-            "Activision";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '3') {
-            "Amyy USA Corporation";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '4') {
-            "Konami";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '5') {
-            "Hi Tech Expressions";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '6') {
-            "LJN";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '7') {
-            "Matchbox";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '8') {
-            "Mattel";
-        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '9') {
-            "Milton Bradley Company";
-        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '0') {
-            "Titus Interactive";
-        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '1') {
-            "Virgin Games";
-        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '4') {
-            "Lucasfilm Games";
-        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '7') {
-            "Ocean Software";
-        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '9') {
-            "EA (Electronic Arts)";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '0') {
-            "Infogrames";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '1') {
-            "Interplay Entertainment";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '2') {
-            "Broderbund";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '3') {
-            "Sculpted Software";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '5') {
-            "The Sales Curve Limited";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '8') {
-            "THQ";
-        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '9') {
-            "Accolade";
-        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '0') {
-            "Misawa Entertainment";
-        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '3') {
-            "lozc";
-        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '6') {
-            "Tokuma Shoten";
-        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '7') {
-            "Tsukuda Original";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '1') {
-            "Chunsoft Co.";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '2') {
-            "Video System";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '3') {
-            "Ocean Software / Acclaim Entertainment";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '5') {
-            "Varie";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '6') {
-            "Yonezawa/s'pal";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '7') {
-            "Kaneko";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '9') {
-            "Pack-In-Video";
-        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == 'H') {
-            "Bottom Up";
-        } else if (self.NewLicenseeCode[0] == 'A' and self.NewLicenseeCode[1] == '4') {
-            "Konami (Yu-Gi-Oh)";
-        } else if (self.NewLicenseeCode[0] == 'B' and self.NewLicenseeCode[1] == 'L') {
-            "MTO";
-        } else if (self.NewLicenseeCode[1] == 'D' and self.NewLicenseeCode[1] == 'K') {
-            "Kodansha";
-        } else {
-            error.NewLicenseNotImplemented;
+    pub fn CartridgeType(self: *const Cartridge) ![]const u8 {
+        return switch (self.cartrigeType) {
+            0x00 => "ROM ONLY",
+            0x01 => "MBC1",
+            0x02 => "MBC1 + RAM",
+            0x03 => "MBC1+RAM+BATTERY",
+            0x05 => "MBC2",
+            0x06 => "MBC2+BATTERY",
+            0x08 => "ROM+RAM",
+            0x09 => "ROM+RAM+BATTERY",
+            0x0B => "MMM01",
+            0x0C => "MMM01+RAM",
+            0x0D => "MMM01+RAM+BATTERY",
+            0x0F => "MBC3+TIMER+BATTERY",
+            0x10 => "MBC3+TIMER+RAM+BATTERY",
+            0x11 => "MBC3",
+            0x12 => "MBC3+RAM",
+            0x13 => "MBC3+RAM+BATTERY",
+            0x19 => "MBC5",
+            0x1A => "MBC5+RAM",
+            0x1B => "MBC5+RAM+BATTERY",
+            0x1C => "MBC5+RUMBLE",
+            0x1D => "MBC5+RUMBLE+RAM",
+            0x1E => "MBC5+RUMBLE+RAM+BATTERY",
+            0x20 => "MBC6",
+            0x22 => "MBC7+SENSOR+RUMBLE+RAM+BATTERY",
+            0xFC => "POCKET CAMERA",
+            0xFD => "BANDAI TAMA5",
+            0xFE => "HuC3",
+            0xFF => "HuC1+RAM+BATTERY",
+            else => error.UnknownCartridgeType,
         };
     }
 
-    fn OldLicense(self: *const Cartridge) ![]u8 {
+    fn NewLicense(self: *const Cartridge) ![]const u8 {
+        if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '0') {
+            return "None";
+        } else if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '1') {
+            return "Nintendo Research & Development";
+        } else if (self.NewLicenseeCode[0] == '0' and self.NewLicenseeCode[1] == '8') {
+            return "Capcom";
+        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '3') {
+            return "EA (Electronic Arts)";
+        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '8') {
+            return "HudsonSoft";
+        } else if (self.NewLicenseeCode[0] == '1' and self.NewLicenseeCode[1] == '9') {
+            return "B-AI";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '0') {
+            return "KSS";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '2') {
+            return "Planning Office WADA";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '4') {
+            return "PCM Complete";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '5') {
+            return "San-X";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '8') {
+            return "Kemco";
+        } else if (self.NewLicenseeCode[0] == '2' and self.NewLicenseeCode[1] == '9') {
+            return "SETA Corporation";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '0') {
+            return "Viacom";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '1') {
+            return "Nintendo";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '2') {
+            return "Bandai";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '3') {
+            return "Ocean Software / Acclaim Entertainment";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '4') {
+            return "Konami";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '5') {
+            return "HectorSoft";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '7') {
+            return "Taito";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '8') {
+            return "Hudson Soft";
+        } else if (self.NewLicenseeCode[0] == '3' and self.NewLicenseeCode[1] == '9') {
+            return "Banpresto";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '1') {
+            return "Ubisoft";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '2') {
+            return "Atlus";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '4') {
+            return "Malibu Interactive";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '6') {
+            return "Angel";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '7') {
+            return "Bullet-Proof Software";
+        } else if (self.NewLicenseeCode[0] == '4' and self.NewLicenseeCode[1] == '9') {
+            return "Irem";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '0') {
+            return "Absolute";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '1') {
+            return "Acclaim Entertainment";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '2') {
+            return "Activision";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '3') {
+            return "Amyy USA Corporation";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '4') {
+            return "Konami";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '5') {
+            return "Hi Tech Expressions";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '6') {
+            return "LJN";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '7') {
+            return "Matchbox";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '8') {
+            return "Mattel";
+        } else if (self.NewLicenseeCode[0] == '5' and self.NewLicenseeCode[1] == '9') {
+            return "Milton Bradley Company";
+        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '0') {
+            return "Titus Interactive";
+        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '1') {
+            return "Virgin Games";
+        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '4') {
+            return "Lucasfilm Games";
+        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '7') {
+            return "Ocean Software";
+        } else if (self.NewLicenseeCode[0] == '6' and self.NewLicenseeCode[1] == '9') {
+            return "EA (Electronic Arts)";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '0') {
+            return "Infogrames";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '1') {
+            return "Interplay Entertainment";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '2') {
+            return "Broderbund";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '3') {
+            return "Sculpted Software";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '5') {
+            return "The Sales Curve Limited";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '8') {
+            return "THQ";
+        } else if (self.NewLicenseeCode[0] == '7' and self.NewLicenseeCode[1] == '9') {
+            return "Accolade";
+        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '0') {
+            return "Misawa Entertainment";
+        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '3') {
+            return "lozc";
+        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '6') {
+            return "Tokuma Shoten";
+        } else if (self.NewLicenseeCode[0] == '8' and self.NewLicenseeCode[1] == '7') {
+            return "Tsukuda Original";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '1') {
+            return "Chunsoft Co.";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '2') {
+            return "Video System";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '3') {
+            return "Ocean Software / Acclaim Entertainment";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '5') {
+            return "Varie";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '6') {
+            return "Yonezawa/s'pal";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '7') {
+            return "Kaneko";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == '9') {
+            return "Pack-In-Video";
+        } else if (self.NewLicenseeCode[0] == '9' and self.NewLicenseeCode[1] == 'H') {
+            return "Bottom Up";
+        } else if (self.NewLicenseeCode[0] == 'A' and self.NewLicenseeCode[1] == '4') {
+            return "Konami (Yu-Gi-Oh)";
+        } else if (self.NewLicenseeCode[0] == 'B' and self.NewLicenseeCode[1] == 'L') {
+            return "MTO";
+        } else if (self.NewLicenseeCode[1] == 'D' and self.NewLicenseeCode[1] == 'K') {
+            return "Kodansha";
+        } else {
+            return error.NewLicenseNotImplemented;
+        }
+    }
+
+    fn OldLicense(self: *const Cartridge) ![]const u8 {
         return switch (self.OldLicenseeCode) {
             0x00 => "None",
             0x01 => "Nintendo",
@@ -302,10 +336,10 @@ const Cartridge = struct {
         };
     }
 
-    pub fn RomSize(self: *const Cartridge) u32 {
+    pub fn RomSize(self: *const Cartridge) i32 {
         // (1024 * 32) * (1 << cartridgeBytes[0x148]),
-        var shiftee = 1;
-        var k = 0;
+        var shiftee: i32 = 1;
+        var k: u5 = 0;
         while (k < self.romSize) : (k += 1) {
             shiftee = shiftee << k;
         }
@@ -315,27 +349,30 @@ const Cartridge = struct {
 
     pub fn String(self: *const Cartridge, allocator: std.mem.Allocator) ![]u8 {
         var list = std.ArrayList(u8).init(allocator);
-        try list.appendSlice("Title: ");
-        std.debug.print("{any}", .{self.Title.len});
-        try list.appendSlice(&self.Title);
-        try list.appendSlice("\n");
+        defer list.deinit();
+        var writer = list.writer();
 
-        return list.items;
+        try writer.print("Title: {s}\n", .{self.Title});
+        const lic = self.License() catch "UNKNOWN LICENSE";
+        try writer.print("Licensee: {s}\n", .{lic});
+        const ct = self.CartridgeType() catch "UNKNOWN Cartridge Type";
+        try writer.print("Cartridge Type: {s}\n", .{ct});
+        try writer.print("ROM Size: {d}\n", .{self.RomSize()});
+
+        return try list.toOwnedSlice();
     }
 };
 
 //TODO: Move byte constant addresses to actual consants with names
-pub fn New(cartridgeBytes: []u8) *Cartridge {
-    var cartridge = Cartridge{
-        .Title = cartridgeBytes[0x134..(0x143 + 1)].*, //TODO Trim Zeroes
+pub fn New(cartridgeBytes: []u8) Cartridge {
+    return Cartridge{
+        .Title = cartridgeBytes[0x134..(0x143 + 1)], //TODO Trim Zeroes
         .ManufacturerCode = cartridgeBytes[0x13F..(0x142 + 1)].*, //Unsure how to check if this is an actual thing, docs say may be part of title
         .NewLicenseeCode = cartridgeBytes[0x144..0x146].*, //Actually 0x145 but add one as not inclusive
         .OldLicenseeCode = cartridgeBytes[0x014B],
         .romSize = cartridgeBytes[0x148],
-        .CartrigeType = cartridgeBytes[0x0147],
+        .cartrigeType = cartridgeBytes[0x0147],
     };
-
-    return &cartridge;
 }
 
 //TODO: Add tests harcoding the example.gb file in bytes to a zig file
