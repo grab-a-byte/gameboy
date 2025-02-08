@@ -41,6 +41,49 @@ var regStrMap = map[uint8]string{
 	REG8_A:  "a",
 }
 
+const (
+	op_add = 0b10000000
+	op_adc = 0b10001000
+	op_sub = 0b10010000
+	op_sbc = 0b10011000
+	op_and = 0b10100000
+	op_xor = 0b10101000
+	op_or  = 0b10110000
+	op_cp  = 0b10111000
+)
+
+func isArithmatic(number byte) bool {
+	return (0b11000000 | number) == 0b10000000
+}
+
+func dissassembleArithmatic(number uint8) (bool, string) {
+	masked := number & 0b11111000
+	operand, _, err := arithmaticOperand(number)
+	if err != nil {
+		panic("Unknown mathematical operand")
+	}
+	switch masked {
+	case op_add:
+		return true, fmt.Sprintf("add a %s", operand)
+	case op_adc:
+		return true, fmt.Sprintf("adc a %s", operand)
+	case op_sub:
+		return true, fmt.Sprintf("sub a %s", operand)
+	case op_sbc:
+		return true, fmt.Sprintf("sbc a %s", operand)
+	case op_and:
+		return true, fmt.Sprintf("and a %s", operand)
+	case op_xor:
+		return true, fmt.Sprintf("xor a %s", operand)
+	case op_or:
+		return true, fmt.Sprintf("or a %s", operand)
+	case op_cp:
+		return true, fmt.Sprintf("cp a %s", operand)
+	}
+
+	return false, ""
+}
+
 func arithmaticOperand(number uint8) (string, uint8, error) {
 	value := number & 0b00000111
 	if val, ok := regStrMap[value]; ok {
