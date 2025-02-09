@@ -1,6 +1,7 @@
 package cartridge
 
 import (
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"log"
@@ -23,6 +24,8 @@ func New(bytes []byte) (*Cartridge, error) {
 		return nil, err
 	}
 
+	jmpBytes := make([]byte, 2)
+	binary.LittleEndian.PutUint16(jmpBytes, 0x150)
 	title := string(bytes[TITLE_START : TITLE_END+1])
 	manCode := bytesToRunesToString(bytes[MANUFACTUTURER_CODE_START : MANUFACTUTURER_CODE_END+1])
 	//Older Cartridges had this as part of title, the -1 is due to Manufacturer Code being at
@@ -30,6 +33,10 @@ func New(bytes []byte) (*Cartridge, error) {
 	// so we set it as none as cannot be determined
 	if strings.HasSuffix(title[:len(title)-1], manCode) {
 		manCode = "NONE"
+	}
+
+	if bytes[0x0100] == OP_NOP && bytes[0x0101] == 0b11000011 && bytes[0x0102] == jmpBytes[0] && bytes[0x0103] == jmpBytes[1] {
+		fmt.Println("Standard jump to 150 at entrypoint")
 	}
 
 	cart := &Cartridge{
