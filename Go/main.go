@@ -23,6 +23,9 @@ func main() {
 	}
 
 	data, _ := io.ReadAll(file)
-	c := cartridge.New(data)
+	c, err := cartridge.New(data)
+	if err != nil {
+		panic("Invalid Cartridge")
+	}
 	fmt.Printf("%s", c.String())
 }

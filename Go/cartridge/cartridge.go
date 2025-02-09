@@ -1,7 +1,9 @@
 package cartridge
 
 import (
+	"errors"
 	"fmt"
+	"log"
 	"strings"
 )
 
@@ -12,16 +14,35 @@ type Cartridge struct {
 	oldLicenseeCode  byte
 	cartridgeType    byte
 	romSize          int
+	instructions     []string
 }
 
-func New(bytes []byte) *Cartridge {
-	return &Cartridge{
+func New(bytes []byte) (*Cartridge, error) {
+	err := Validate(bytes)
+	if err != nil {
+		return nil, err
+	}
+	cart := &Cartridge{
 		Title:           string(bytes[TITLE_START : TITLE_END+1]),
 		newLicenseeCode: bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1],
 		oldLicenseeCode: bytes[OLD_LICENSEE_CODE],
 		cartridgeType:   bytes[CARTRIDGE_TYPE],
-		romSize: int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
+		romSize:         int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
 	}
+
+	for _, b := range bytes[0x0150:] {
+		if isArithmatic(b) {
+			valid, ins := dissassembleArithmatic(b)
+			if !valid {
+				log.Println("Invalid instruction")
+			}
+			cart.instructions = append(cart.instructions, ins)
+		} else {
+			cart.instructions = append(cart.instructions, "Unknown")
+		}
+	}
+
+	return cart, nil
 }
 
 func (c *Cartridge) String() string {
@@ -41,6 +62,11 @@ func (c *Cartridge) String() string {
 	builder.WriteString("Rom Size: ")
 	builder.WriteString(fmt.Sprint(c.RomSize()))
 	builder.WriteRune('\n')
+
+	for i, s := range c.instructions {
+		str := fmt.Sprintf("% x: %s \n", i, s)
+		builder.WriteString(str)
+	}
 
 	return builder.String()
 }
@@ -72,4 +98,31 @@ func (c *Cartridge) Type() string {
 		return "Unknown cartridge type"
 	}
 	return value
+}
+
+func Validate(bytes []byte) error {
+	validateNintendoLogo(bytes)
+	if !validateNintendoLogo(bytes) {
+		return errors.New("unable to verfy nintendo logo, please check the carteidge you are using")
+	}
+	return nil
+}
+
+func validateNintendoLogo(bytes []byte) bool {
+	//TODO: Only validte half if this fails and check due to newer cartridges
+	slice := bytes[0x104:0x0134]
+	expected := []byte{0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D,
+		0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99,
+		0xBB, 0xBB, 0x67, 0x63, 0x6E, 0x0E, 0xEC, 0xCC, 0xDD, 0xDC, 0x99, 0x9F, 0xBB, 0xB9, 0x33, 0x3E}
+
+	if len(slice) != len(expected) {
+		return false
+	}
+
+	for i := range expected {
+		if slice[i] != expected[i] {
+			return false
+		}
+	}
+	return true
 }

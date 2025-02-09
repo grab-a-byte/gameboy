@@ -53,7 +53,7 @@ const (
 )
 
 func isArithmatic(number byte) bool {
-	return (0b11000000 | number) == 0b10000000
+	return (0b11000000 & number) == 0b10000000
 }
 
 func dissassembleArithmatic(number uint8) (bool, string) {
