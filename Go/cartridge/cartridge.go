@@ -22,16 +22,27 @@ func New(bytes []byte) (*Cartridge, error) {
 	if err != nil {
 		return nil, err
 	}
-	cart := &Cartridge{
-		Title:           string(bytes[TITLE_START : TITLE_END+1]),
-		newLicenseeCode: bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1],
-		oldLicenseeCode: bytes[OLD_LICENSEE_CODE],
-		cartridgeType:   bytes[CARTRIDGE_TYPE],
-		romSize:         int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
+
+	title := string(bytes[TITLE_START : TITLE_END+1])
+	manCode := bytesToRunesToString(bytes[MANUFACTUTURER_CODE_START : MANUFACTUTURER_CODE_END+1])
+	//Older Cartridges had this as part of title, the -1 is due to Manufacturer Code being at
+	// 0x142 end and Title ending at 0x0143 so we need to be one less
+	// so we set it as none as cannot be determined
+	if strings.HasSuffix(title[:len(title)-1], manCode) {
+		manCode = "NONE"
 	}
 
-	instructions :=	bytes[0x0150:]
-	for i := 0; i <  len(instructions); i++{
+	cart := &Cartridge{
+		Title:            title,
+		newLicenseeCode:  bytes[NEW_LICENSEE_CODE_START : NEW_LICENSEE_CODE_END+1],
+		oldLicenseeCode:  bytes[OLD_LICENSEE_CODE],
+		cartridgeType:    bytes[CARTRIDGE_TYPE],
+		romSize:          int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
+		ManufacturerCode: manCode,
+	}
+
+	instructions := bytes[0x0150:]
+	for i := 0; i < len(instructions); i++ {
 		b := instructions[i]
 		str := ""
 		if isArithmatic(b) {
@@ -40,13 +51,13 @@ func New(bytes []byte) (*Cartridge, error) {
 				log.Println("Invalid instruction")
 			}
 			str = ins
-		} else if isImmediateAritmatic(b){
+		} else if isImmediateAritmatic(b) {
 			str = dissassembleImmediateArithmatic(b, instructions[i+1])
 			i += 1
 		} else {
 			str = "Unknown"
 		}
-			cart.instructions = append(cart.instructions, str)
+		cart.instructions = append(cart.instructions, str)
 	}
 
 	return cart, nil
@@ -70,10 +81,15 @@ func (c *Cartridge) String() string {
 	builder.WriteString(fmt.Sprint(c.RomSize()))
 	builder.WriteRune('\n')
 
-	for i, s := range c.instructions {
-		str := fmt.Sprintf("% x: %s \n", i, s)
-		builder.WriteString(str)
-	}
+	builder.WriteString("Manufacturer Code: ")
+	builder.WriteString(c.ManufacturerCode)
+	builder.WriteRune('\n')
+
+	//Commented to get rest of header working
+	// for i, s := range c.instructions {
+	// 	str := fmt.Sprintf("% x: %s \n", i, s)
+	// 	builder.WriteString(str)
+	// }
 
 	return builder.String()
 }
@@ -132,4 +148,12 @@ func validateNintendoLogo(bytes []byte) bool {
 		}
 	}
 	return true
+}
+
+func bytesToRunesToString(bytes []byte) string {
+	runes := []rune{}
+	for _, b := range bytes {
+		runes = append(runes, rune(b))
+	}
+	return string(runes)
 }
