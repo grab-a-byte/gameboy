@@ -3,20 +3,28 @@ package cartridge
 import "fmt"
 
 const (
-	OP_NOP    = 0b00000000
-	OP_RLCA   = 0b00000111
-	OP_RRCA   = 0b00001111
-	OP_RLA    = 0b00010111
-	OP_RRA    = 0b00011111
-	OP_DAA    = 0b00100111
-	OP_CPL    = 0b00101111
-	OP_SCF    = 0b00110111
-	OP_CCF    = 0b00111111
-	OP_STOP   = 0b00010000
-	OP_HALT   = 0b01110110
-	OP_RET    = 0b11001001
-	OP_RET_I  = 0b11011001
-	OP_JMP_HL = 0b11101001
+	OP_NOP     = 0b00000000
+	OP_RLCA    = 0b00000111
+	OP_RRCA    = 0b00001111
+	OP_RLA     = 0b00010111
+	OP_RRA     = 0b00011111
+	OP_DAA     = 0b00100111
+	OP_CPL     = 0b00101111
+	OP_SCF     = 0b00110111
+	OP_CCF     = 0b00111111
+	OP_STOP    = 0b00010000
+	OP_HALT    = 0b01110110
+	OP_RET     = 0b11001001
+	OP_RET_I   = 0b11011001
+	OP_JMP_HL  = 0b11101001
+	OP_ADD_IMM = 0b11000110
+	OP_ADC_IMM = 0b11001110
+	OP_SUB_IMM = 0b11010110
+	OP_SBC_IMM = 0b11011110
+	OP_AND_IMM = 0b11100110
+	OP_XOR_IMM = 0b11101110
+	OP_OR_IMM  = 0b11110110
+	OP_CP_IMM  = 0b11111110
 )
 
 const (
@@ -91,4 +99,30 @@ func arithmaticOperand(number uint8) (string, uint8, error) {
 	}
 
 	return "", 0, fmt.Errorf("unable to determine operand, looking for operand %d", value)
+}
+
+func isImmediateAritmatic(b byte) bool {
+	switch b {
+	case OP_ADD_IMM, OP_ADC_IMM, OP_SUB_IMM, OP_SBC_IMM, OP_AND_IMM, OP_XOR_IMM, OP_OR_IMM, OP_CP_IMM:
+		return true
+	}
+
+	return false
+}
+
+func dissassembleImmediateArithmatic(ins byte, operand byte) string {
+	strIns := ""
+	switch ins {
+	case OP_ADD_IMM: strIns = "add(imm) a"
+	case OP_ADC_IMM: strIns = "adc(imm) a"
+	case OP_SUB_IMM: strIns = "sub(imm) a"
+	case OP_SBC_IMM: strIns = "sbc(imm) a"
+	case OP_AND_IMM: strIns = "and(imm) a"
+	case OP_XOR_IMM: strIns = "xor(imm) a"
+	case OP_OR_IMM: strIns = "or(imm) a"
+	case OP_CP_IMM: strIns = "cp(imm) a"
+	default: panic("Unknown immediate arithmatic instruction")
+	}
+
+	return fmt.Sprintf("%s %d", strIns, operand)
 }

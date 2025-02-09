@@ -30,16 +30,23 @@ func New(bytes []byte) (*Cartridge, error) {
 		romSize:         int(bytes[ROM_SIZE]), //Could calculate direct to save recalculation each time
 	}
 
-	for _, b := range bytes[0x0150:] {
+	instructions :=	bytes[0x0150:]
+	for i := 0; i <  len(instructions); i++{
+		b := instructions[i]
+		str := ""
 		if isArithmatic(b) {
 			valid, ins := dissassembleArithmatic(b)
 			if !valid {
 				log.Println("Invalid instruction")
 			}
-			cart.instructions = append(cart.instructions, ins)
+			str = ins
+		} else if isImmediateAritmatic(b){
+			str = dissassembleImmediateArithmatic(b, instructions[i+1])
+			i += 1
 		} else {
-			cart.instructions = append(cart.instructions, "Unknown")
+			str = "Unknown"
 		}
+			cart.instructions = append(cart.instructions, str)
 	}
 
 	return cart, nil
