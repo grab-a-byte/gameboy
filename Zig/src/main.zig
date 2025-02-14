@@ -10,6 +10,4 @@ pub fn main() !void {
     const cart = cartridge.New(bytes);
     const str = cart.String(allocator) catch "WARNING!";
     std.debug.print("{s}\n", .{str});
-    const v = opcodes.getArithmaticOperand(0b10101010);
-    std.debug.print("{d}", .{v});
 }

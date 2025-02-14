@@ -7,6 +7,7 @@ const Cartridge = struct {
     cartrigeType: u8,
     romSize: u8,
     OldLicenseeCode: u8,
+    Instructions: [][]u8,
 
     pub fn Destination(self: *Cartridge) ![]u8 {
         return if (self.DestinationCode == 0) "Japan" else "Overseas";
@@ -336,15 +337,8 @@ const Cartridge = struct {
         };
     }
 
-    pub fn RomSize(self: *const Cartridge) i32 {
-        // (1024 * 32) * (1 << cartridgeBytes[0x148]),
-        var shiftee: i32 = 1;
-        var k: u5 = 0;
-        while (k < self.romSize) : (k += 1) {
-            shiftee = shiftee << k;
-        }
-
-        return (1024 * 32) * shiftee;
+    pub fn RomSize(self: *const Cartridge) u32 {
+        return (1024 * 32) * (@as(u32, 1) << @intCast(self.romSize));
     }
 
     pub fn String(self: *const Cartridge, allocator: std.mem.Allocator) ![]u8 {
@@ -372,7 +366,6 @@ pub fn New(cartridgeBytes: []u8) Cartridge {
         .OldLicenseeCode = cartridgeBytes[0x014B],
         .romSize = cartridgeBytes[0x148],
         .cartrigeType = cartridgeBytes[0x0147],
+        .Instructions = undefined,
     };
 }
-
-//TODO: Add tests harcoding the example.gb file in bytes to a zig file
