@@ -48,24 +48,27 @@ func New(bytes []byte) (*Cartridge, error) {
 		ManufacturerCode: manCode,
 	}
 
-	instructions := bytes[0x0150:]
-	for i := 0; i < len(instructions); i++ {
-		b := instructions[i]
-		str := ""
-		if isArithmatic(b) {
-			valid, ins := dissassembleArithmatic(b)
-			if !valid {
-				log.Println("Invalid instruction")
-			}
-			str = ins
-		} else if isImmediateAritmatic(b) {
-			str = dissassembleImmediateArithmatic(b, instructions[i+1])
-			i += 1
-		} else {
-			str = "Unknown"
-		}
-		cart.instructions = append(cart.instructions, str)
-	}
+	//Rewriting all of this
+	// instructions := bytes[0x0150:]
+	// for i := 0; i < len(instructions); i++ {
+	// 	b := instructions[i]
+	// 	str := ""
+	// 	if isArithmatic(b) {
+	// 		valid, ins := dissassembleArithmatic(b)
+	// 		if !valid {
+	// 			log.Println("Invalid instruction")
+	// 		}
+	// 		str = ins
+	// 	} else if isImmediateAritmatic(b) {
+	// 		str = dissassembleImmediateArithmatic(b, instructions[i+1])
+	// 		i += 1
+	// 	} else if val, ok := opStrMap[b]; ok {
+	// 		str = val
+	// 	} else {
+	// 		str = fmt.Sprintf("%08b", b)
+	// 	}
+	// 	cart.instructions = append(cart.instructions, str)
+	// }
 
 	return cart, nil
 }
@@ -93,10 +96,10 @@ func (c *Cartridge) String() string {
 	builder.WriteRune('\n')
 
 	//Commented to get rest of header working
-	// for i, s := range c.instructions {
-	// 	str := fmt.Sprintf("% x: %s \n", i, s)
-	// 	builder.WriteString(str)
-	// }
+	for i, s := range c.instructions {
+		str := fmt.Sprintf("% x: %s \n", i, s)
+		builder.WriteString(str)
+	}
 
 	return builder.String()
 }
