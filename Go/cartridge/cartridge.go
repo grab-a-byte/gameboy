@@ -48,7 +48,7 @@ func New(bytes []byte) (*Cartridge, error) {
 	}
 
 	// for i := 150; i < len(bytes); {
-	for i := 0x100; i < 0x150; {
+	for i := 0x100; i < len(bytes); {
 		str, bytesUsed := dissassembleNextBytes(bytes[i:])
 		i = i + bytesUsed
 		cart.instructions = append(cart.instructions, str)

@@ -5,109 +5,6 @@ import (
 	"fmt"
 )
 
-// // Consts are broken up in line with https://gbdev.io/pandocs/CPU_Instruction_Set.html
-// // as of 19/2/2025
-// const (
-// 	//Block 0
-// 	OP_NOP = 0b00000000
-
-// 	OP_LD_R16_IMM16 = 0b00110001
-// 	OP_LD_R16MEM_A  = 0b00110010
-// 	OP_LD_A_R16MEM  = 0b00111010
-// 	OP_LD_IMM16_SP  = 0b00001000
-
-// 	OP_INC_R16    = 0b00110011
-// 	OP_DEC_R16    = 0b00111011
-// 	OP_ADD_HL_R16 = 0b00111000
-
-// 	OP_INC_R8 = 0b0011100
-// 	OP_DEC_R8 = 0b0011101
-
-// 	OP_LD_R8_IMM8 = 0b0011110
-
-// 	OP_RLCA = 0b00000111
-// 	OP_RRCA = 0b00001111
-// 	OP_RLA  = 0b00010111
-// 	OP_RRA  = 0b00011111
-// 	OP_DAA  = 0b00100111
-// 	OP_CPL  = 0b00101111
-// 	OP_SCF  = 0b00110111
-// 	OP_CCF  = 0b00111111
-
-// 	OP_JR_IMM8      = 0b00011000
-// 	OP_JR_COND_IMM8 = 0b00100000
-
-// 	OP_STOP = 0b00010000
-
-// 	//Block 1: 8 bit register loads
-// 	//impossible to encode ld [hl][hl]
-// 	OP_LD_R8_R8 = 0b01000000
-
-// 	OP_HALT = 0b01110110
-
-// 	//Block 2: 8-bit arithmatic
-// 	OP_ADD_A_R8 = 0b10000000
-// 	OP_ADC_A_R8 = 0b10001000
-// 	OP_SUB_A_R8 = 0b10010000
-// 	OP_SBC_A_R8 = 0b10011000
-// 	OP_AND_A_R8 = 0b10100000
-// 	OP_XOR_A_R8 = 0b10101000
-// 	OP_OR_A_R8  = 0b10110000
-// 	OP_CP_A_R8  = 0b10111000
-
-// 	//Block 3
-// 	OP_ADD_A_IMM = 0b11000110
-// 	OP_ADC_A_IMM = 0b11001110
-// 	OP_SUB_A_IMM = 0b11010110
-// 	OP_SBC_A_IMM = 0b11011110
-// 	OP_AND_A_IMM = 0b11100110
-// 	OP_XOR_A_IMM = 0b11101110
-// 	OP_OR_A_IMM  = 0b11110110
-// 	OP_CP_A_IMM  = 0b11111110
-
-// 	OP_RET_COND        = 0b11000000
-// 	OP_RET             = 0b11001001
-// 	OP_RET_I           = 0b11011001
-// 	OP_JP_COND_IMM16   = 0b11000010
-// 	OP_JP_IMM16        = 0b11000011
-// 	OP_JMP_HL          = 0b11101001
-// 	OP_CALL_COND_IMM16 = 0b11000100
-// 	OP_CALL_IMM16      = 0b11001101
-// 	OP_RST_TGT3        = 0b11000111
-
-// 	OP_POP_R16STK  = 0b11000001
-// 	OP_PUSH_R16STK = 0b11000101
-
-// 	OP_PREFIX = 0b11001011
-
-// 	OP_LDH_C_A    = 0b11100010
-// 	OP_LDH_IMM8_A = 0b11100000
-// 	OP_LD_IMM16_A = 0b11101010
-// 	OP_LD_A_C     = 0b11110010
-// 	OP_LDH_A_IMM8 = 0b11110000
-// 	OP_LS_A_IMM16 = 0b11111010
-
-// 	OP_ADD_SP_IMM8   = 0b11101000
-// 	OP_LD_HL_SP_IMM8 = 0b11111000
-// 	OP_LD_SP_HL      = 0b11111001
-
-// 	OP_DI = 0b11110011
-// 	OP_EI = 0b11111011
-
-// 	OP_PRE_RLC_R8  = 0b00000000
-// 	OP_PRE_RRC_R8  = 0b00001000
-// 	OP_PRE_RL_R8   = 0b00010000
-// 	OP_PRE_RR_R8   = 0b00011000
-// 	OP_PRE_SLA     = 0b00100000
-// 	OP_PRE_SRA     = 0b00101000
-// 	OP_PRE_SWAP_R8 = 0b00110000
-// 	OP_PRE_SRL_R8  = 0b00111000
-
-// 	OP_PRE_BIT_B3_R8 = 0b01000000
-// 	OP_PRE_RES_B3_R8 = 0b10000000
-// 	OP_PRE_SET_B3_R8 = 0b11000000
-// )
-
 var r8Map = map[int]string{
 	0: "b",
 	1: "c",
@@ -140,6 +37,15 @@ var r16MemMap = map[int]string{
 	3: "hl-",
 }
 
+var condMap = map[int]string{
+	0: "nz",
+	1: "z",
+	2: "nc",
+	3: "c",
+}
+
+// Values are broken up in line with https://gbdev.io/pandocs/CPU_Instruction_Set.html
+// as of 19/2/2025
 func dissassembleNextBytes(bytes []byte) (string, int) {
 
 	instruction := bytes[0]
@@ -202,8 +108,64 @@ func dissassembleNextBytes(bytes []byte) (string, int) {
 		operand := (instruction & 0b00111000) >> 3
 		paramName := r8Map[int(operand)]
 		return fmt.Sprintf("dec %s", paramName), 1
+
+	//ld r8, imm8
+	case 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E:
+		operand := (instruction & 0b00111000) >> 3
+		paramName := r8Map[int(operand)]
+		val := bytes[1]
+		return fmt.Sprintf("ld %s, %d", paramName, val), 2
+
+	//rlca
+	case 0x07:
+		return "rlca", 1
+
+	//rrca
+	case 0x0F:
+		return "rrca", 1
+
+	//rla
+	case 0x17:
+		return "rla", 1
+
+	//rra
+	case 0x1F:
+		return "rra", 1
+
+	//daa
+	case 0x27:
+		return "daa", 1
+
+	//cpl
+	case 0x2F:
+		return "cpl", 1
+
+	//scf
+	case 0x37:
+		return "scf", 1
+
+	//ccf
+	case 0x3F:
+		return "ccf", 1
+
+	//jr imm8
+	case 0x18:
+		val := bytes[1]
+		return fmt.Sprintf("jr %d", val), 2
+
+	//jr cond, imm8
+	case 0x20, 0x30, 0x28, 0x38:
+		cond := (instruction & 0b00011000) >> 3
+		condName := condMap[int(cond)]
+		val := bytes[1]
+		return fmt.Sprintf("jr %s, %d", condName, val), 2
+
+	//stop
+	case 0x10:
+		return "stop", 1
 	}
 
 	// panic(fmt.Sprintf("Unknown operand %8x", instruction))
-	return "", 1
+	//Temp just to keep things moving and parse whole file
+	return fmt.Sprintf("%2x", instruction), 1
 }
