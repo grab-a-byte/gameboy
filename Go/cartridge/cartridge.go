@@ -4,7 +4,6 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"log"
 	"strings"
 )
 
@@ -35,9 +34,9 @@ func New(bytes []byte) (*Cartridge, error) {
 		manCode = "NONE"
 	}
 
-	if bytes[0x0100] == OP_NOP && bytes[0x0101] == 0b11000011 && bytes[0x0102] == jmpBytes[0] && bytes[0x0103] == jmpBytes[1] {
-		fmt.Println("Standard jump to 150 at entrypoint")
-	}
+	// if bytes[0x0100] == OP_NOP && bytes[0x0101] == 0b11000011 && bytes[0x0102] == jmpBytes[0] && bytes[0x0103] == jmpBytes[1] {
+	// 	fmt.Println("Standard jump to 150 at entrypoint")
+	// }
 
 	cart := &Cartridge{
 		Title:            title,
@@ -48,22 +47,10 @@ func New(bytes []byte) (*Cartridge, error) {
 		ManufacturerCode: manCode,
 	}
 
-	instructions := bytes[0x0150:]
-	for i := 0; i < len(instructions); i++ {
-		b := instructions[i]
-		str := ""
-		if isArithmatic(b) {
-			valid, ins := dissassembleArithmatic(b)
-			if !valid {
-				log.Println("Invalid instruction")
-			}
-			str = ins
-		} else if isImmediateAritmatic(b) {
-			str = dissassembleImmediateArithmatic(b, instructions[i+1])
-			i += 1
-		} else {
-			str = "Unknown"
-		}
+	// for i := 150; i < len(bytes); {
+	for i := 0x100; i < len(bytes); {
+		str, bytesUsed := dissassembleNextBytes(bytes[i:])
+		i = i + bytesUsed
 		cart.instructions = append(cart.instructions, str)
 	}
 
@@ -93,10 +80,10 @@ func (c *Cartridge) String() string {
 	builder.WriteRune('\n')
 
 	//Commented to get rest of header working
-	// for i, s := range c.instructions {
-	// 	str := fmt.Sprintf("% x: %s \n", i, s)
-	// 	builder.WriteString(str)
-	// }
+	for i, s := range c.instructions {
+		str := fmt.Sprintf("% x: %s \n", i, s)
+		builder.WriteString(str)
+	}
 
 	return builder.String()
 }
