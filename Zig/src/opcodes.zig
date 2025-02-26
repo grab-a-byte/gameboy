@@ -1,44 +1,37 @@
 const std = @import("std");
 
-const nop = 0b00000000;
-const rlca = 0b00000111;
-const rrca = 0b00001111;
-const rla = 0b00010111;
-const rra = 0b00011111;
-const daa = 0b00100111;
-const cpl = 0b00101111;
-const scf = 0b00110111;
-const ccf = 0b00111111;
+const Instruction = struct { str: []const u8, length: u8 };
 
-const add_imm = 0b11000110;
-const adc_imm = 0b11001110;
-const sub_imm = 0b11010110;
-const sbc_imm = 0b11011110;
-const and_imm = 0b11100110;
-const xor_imm = 0b11101110;
-const or_imm = 0b11110110;
-const cp_imm = 0b11111110;
-
-pub fn getArithmaticOperand(value: u8) u3 {
-    return @truncate(value & 0b00000111);
+fn getR16Name(val: u2) []const u8 {
+    return switch (val) {
+        0 => "bc",
+        1 => "de",
+        2 => "hl",
+        3 => "sp",
+    };
 }
 
-test "get arithmatic operand" {
-    const expect = std.testing.expect;
-
-    const testValues = [_]u8{
-        0b00000111,
-        0b00000000,
-        0b00000001,
-        0b00000010,
-        0b00000011,
+pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !Instruction {
+    const instruction = bytes[0];
+    return switch (instruction) {
+        //nop
+        0x00 => .{ .str = "nop", .length = 1 },
+        //ld r16 imm16
+        0x01, 0x11, 0x21, 0x31 => {
+            const register: u2 = @truncate(instruction >> 4);
+            const regName = getR16Name(register);
+            const val: u16 = (bytes[1] << 4) + (bytes[2]);
+            const ins = try std.fmt.allocPrint(allocator, "ld {s}, {d}", .{ regName, val });
+            return .{ .str = ins, .length = 3 };
+        },
+        else => unreachable,
     };
-    const testAnswers = [_]u8{ 7, 0, 1, 2, 3 };
+}
 
-    for (0..testValues.len) |index| {
-        const result = getArithmaticOperand(testValues[index]);
-        std.debug.print("result: {}, {}\n", .{result, testAnswers[index]});
-        std.debug.print("{}", .{index});
-        try expect(result == testAnswers[index]);
-    }
+test "dissassemble instruction" {
+    const expect = std.testing.expect;
+    const instructions = [_]u8{0x00};
+    const nop = try disassembleInstruction(std.testing.allocator, instructions[0..]);
+    try expect(std.mem.eql(u8, nop.str, "nop"));
+    try expect(nop.length == 1);
 }
