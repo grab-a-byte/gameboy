@@ -27,5 +27,11 @@ func main() {
 	if err != nil {
 		panic("Invalid Cartridge")
 	}
-	fmt.Printf("%s", c.String())
+	// fmt.Printf("%s", c.String())
+	output, err := os.Create("example-dissassembled.txt")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	output.WriteString(c.String())
 }

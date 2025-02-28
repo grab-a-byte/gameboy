@@ -47,6 +47,7 @@ func New(bytes []byte) (*Cartridge, error) {
 		ManufacturerCode: manCode,
 	}
 
+	//76243 <- byte is failing to dissassemble, may need to recheck
 	// for i := 150; i < len(bytes); {
 	for i := 0x100; i < len(bytes); {
 		str, bytesUsed := dissassembleNextBytes(bytes[i:])
@@ -79,7 +80,6 @@ func (c *Cartridge) String() string {
 	builder.WriteString(c.ManufacturerCode)
 	builder.WriteRune('\n')
 
-	//Commented to get rest of header working
 	for i, s := range c.instructions {
 		str := fmt.Sprintf("% x: %s \n", i, s)
 		builder.WriteString(str)
