@@ -93,3 +93,40 @@ func Test_ArithmaticDissassembly(t *testing.T) {
 		}
 	}
 }
+
+func Test_SingleByteInstructions(t *testing.T) {
+	table := []struct {
+		input uint8
+		str   string
+	}{
+		{0b00000000, "nop"},
+		{0b00000111, "rlca"},
+		{0b00001111, "rrca"},
+		{0b00010111, "rla"},
+		{0b00011111, "rra"},
+		{0b00100111, "daa"},
+		{0b00101111, "cpl"},
+		{0b00110111, "scf"},
+		{0b00111111, "ccf"},
+		{0b00010000, "stop"},
+		{0b01110110, "halt"},
+		{0b11001001, "ret"},
+		{0b11011001, "reti"},
+		{0b11101001, "jp hl"},
+		{0b11100010, "ldh [c], a"},
+		{0b11110010, "ldh a, [c]"},
+		{0b11111001, "ld sp, hl"},
+		{0b11110011, "di"},
+		{0b11111011, "ei"},
+	}
+	for _, check := range table {
+		input := []byte{check.input}
+		str, length := dissassembleNextBytes(input)
+		if length != 1 {
+			t.Errorf("Expected length for %b to be 1 but found %d", check.input, length)
+		}
+		if str != check.str {
+			t.Errorf("Expected str for %b to be %s but found %s", check.input, check.str, str)
+		}
+	}
+}
