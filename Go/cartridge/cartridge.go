@@ -51,8 +51,9 @@ func New(bytes []byte) (*Cartridge, error) {
 	// for i := 150; i < len(bytes); {
 	for i := 0x100; i < len(bytes); {
 		str, bytesUsed := dissassembleNextBytes(bytes[i:])
+		formatted := fmt.Sprintf("%d: %s", i, str)
 		i = i + bytesUsed
-		cart.instructions = append(cart.instructions, str)
+		cart.instructions = append(cart.instructions, formatted)
 	}
 
 	return cart, nil
@@ -80,8 +81,8 @@ func (c *Cartridge) String() string {
 	builder.WriteString(c.ManufacturerCode)
 	builder.WriteRune('\n')
 
-	for i, s := range c.instructions {
-		str := fmt.Sprintf("% x: %s \n", i, s)
+	for _, s := range c.instructions {
+		str := fmt.Sprintf("%s \n", s)
 		builder.WriteString(str)
 	}
 
@@ -126,7 +127,7 @@ func Validate(bytes []byte) error {
 }
 
 func validateNintendoLogo(bytes []byte) bool {
-	//TODO: Only validte half if this fails and check due to newer cartridges
+	//TODO: Only validate half if this fails and check due to newer cartridges
 	slice := bytes[0x104:0x0134]
 	expected := []byte{0xCE, 0xED, 0x66, 0x66, 0xCC, 0x0D, 0x00, 0x0B, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0C, 0x00, 0x0D,
 		0x00, 0x08, 0x11, 0x1F, 0x88, 0x89, 0x00, 0x0E, 0xDC, 0xCC, 0x6E, 0xE6, 0xDD, 0xDD, 0xD9, 0x99,
