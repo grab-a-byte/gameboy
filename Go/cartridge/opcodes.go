@@ -81,37 +81,37 @@ func dissassembleNextBytes(bytes []byte) (string, int) {
 
 	//inc r16
 	case 0x03, 0x13, 0x23, 0x33:
-		param := (instruction & 0b00111000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16Map[param]
 		return fmt.Sprintf("inc %s", paramName), 1
 
 	//dec r16
 	case 0x0B, 0x1B, 0x2B, 0x3B:
-		param := (instruction & 0b00111000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16Map[param]
 		return fmt.Sprintf("dec %s", paramName), 1
 
 	//add hl, r16
 	case 0x09, 0x19, 0x29, 0x39:
-		param := (instruction & 0b00111000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16Map[param]
 		return fmt.Sprintf("dec %s", paramName), 1
 
 	//inc r8
 	case 0x04, 0x14, 0x24, 0x34, 0x0C, 0x1C, 0x2C, 0x3C:
-		operand := (instruction & 0b00111000) >> 3
+		operand := (instruction & 0b00110000) >> 3
 		paramName := r8Map[operand]
 		return fmt.Sprintf("inc %s", paramName), 1
 
 	//dec r8
 	case 0x05, 0x15, 0x25, 0x35, 0x0D, 0x1D, 0x2D, 0x3D:
-		operand := (instruction & 0b00111000) >> 3
+		operand := (instruction & 0b00110000) >> 3
 		paramName := r8Map[operand]
 		return fmt.Sprintf("dec %s", paramName), 1
 
 	//ld r8, imm8
 	case 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E:
-		operand := (instruction & 0b00111000) >> 3
+		operand := (instruction & 0b00110000) >> 3
 		paramName := r8Map[operand]
 		val := bytes[1]
 		return fmt.Sprintf("ld %s, %d", paramName, val), 2

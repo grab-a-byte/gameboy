@@ -1,4 +1,5 @@
 const std = @import("std");
+const opcodes = @import("opcodes.zig");
 
 const Cartridge = struct {
     Title: []u8,
@@ -358,7 +359,18 @@ const Cartridge = struct {
 };
 
 //TODO: Move byte constant addresses to actual consants with names
-pub fn New(cartridgeBytes: []u8) Cartridge {
+pub fn New(alloc: std.mem.Allocator, cartridgeBytes: []u8) !Cartridge {
+
+    var arr = std.ArrayList([]const u8).init(alloc);
+
+    var i: u32 = 0x100;
+    while (i <= cartridgeBytes.len) {
+        const bytes = cartridgeBytes[i..];
+        const ins = try opcodes.disassembleInstruction(alloc, bytes);
+        try arr.append(ins.str);
+        i += ins.length;
+    }
+
     return Cartridge{
         .Title = cartridgeBytes[0x134..(0x143 + 1)], //TODO Trim Zeroes
         .ManufacturerCode = cartridgeBytes[0x13F..(0x142 + 1)].*, //Unsure how to check if this is an actual thing, docs say may be part of title

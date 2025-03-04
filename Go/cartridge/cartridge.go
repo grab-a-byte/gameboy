@@ -47,8 +47,6 @@ func New(bytes []byte) (*Cartridge, error) {
 		ManufacturerCode: manCode,
 	}
 
-	//76243 <- byte is failing to dissassemble, may need to recheck
-	// for i := 150; i < len(bytes); {
 	for i := 0x100; i < len(bytes); {
 		str, bytesUsed := dissassembleNextBytes(bytes[i:])
 		formatted := fmt.Sprintf("%d: %s", i, str)
