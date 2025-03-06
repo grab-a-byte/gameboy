@@ -5,39 +5,39 @@ import (
 	"fmt"
 )
 
-var r8Map = map[byte]string{
-	0: "b",
-	1: "c",
-	2: "d",
-	3: "e",
-	4: "h",
-	5: "l",
-	6: "[hl]",
-	7: "a",
+var r8Map = [8]string{
+	"b",
+	"c",
+	"d",
+	"e",
+	"h",
+	"l",
+	"[hl]",
+	"a",
 }
 
-var r16Map = map[byte]string{
+var r16Map = [4]string{
 	0: "bc",
 	1: "de",
 	2: "hl",
 	3: "sp",
 }
 
-var r16StkMap = map[byte]string{
+var r16StkMap = [4]string{
 	0: "bc",
 	1: "de",
 	2: "hl",
 	3: "af",
 }
 
-var r16MemMap = map[byte]string{
+var r16MemMap = [4]string{
 	0: "bc",
 	1: "de",
 	2: "hl+",
 	3: "hl-",
 }
 
-var condMap = map[byte]string{
+var condMap = [4]string{
 	0: "nz",
 	1: "z",
 	2: "nc",
@@ -164,7 +164,7 @@ func dissassembleNextBytes(bytes []byte) (string, int) {
 	case 0x10:
 		return "stop", 1
 
-	//ls r8, r8
+	//ld r8, r8
 	case 0x40, 0x41, 0x42, 0x43, 0x44, 0x45, 0x46,
 		0x47, 0x48, 0x49, 0x4A, 0x4B, 0x4C, 0x4D, 0x4E, 0x4F, 0x50,
 		0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57, 0x58, 0x59, 0x5A,
