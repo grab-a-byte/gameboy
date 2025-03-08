@@ -78,7 +78,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         0x04, 0x14, 0x24, 0x34, 0x0C, 0x1C, 0x2C, 0x3C => {
             const param: u3 = @truncate(instruction >> 3);
             const paramName = r8Map[param];
-            const ins = try std.fmt.allocPrint(allocator, "inc {s}", paramName);
+            const ins = try std.fmt.allocPrint(allocator, "inc {s}", .{paramName});
             return .{ .str = ins, .length = 1 };
         },
 
@@ -86,7 +86,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         0x05, 0x15, 0x25, 0x35, 0x0D, 0x1D, 0x2D, 0x3D => {
             const param: u3 = @truncate(instruction >> 3);
             const paramName = r8Map[param];
-            const ins = try std.fmt.allocPrint(allocator, "dec {s}", paramName);
+            const ins = try std.fmt.allocPrint(allocator, "dec {s}", .{paramName});
             return .{ .str = ins, .length = 1 };
         },
 
@@ -121,7 +121,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         0x37 => return .{ .str = "scf", .length = 1 },
 
         //ccf
-        0x18 => return .{ .str = "ccf", .length = 1 },
+        0x3F => return .{ .str = "ccf", .length = 1 },
 
         //jr imm8
         0x18 => {
@@ -148,15 +148,15 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
             const dest: u3 = @truncate(instruction);
             const srcName = r8Map[src];
             const destName = r8Map[dest];
-            const ins = std.fmt.allocPrint(allocator, "ld {s}, {s}", .{ srcName, destName });
-            return .{ .str = ins, .lenth = 1 };
+            const ins = try std.fmt.allocPrint(allocator, "ld {s}, {s}", .{ srcName, destName });
+            return .{ .str = ins, .length = 1 };
         },
 
         //halt
         0x76 => return .{ .str = "halt", .length = 1 },
 
         //add a, r8
-        0x80, 0x81, 0x82, 0x8B, 0x8C, 0x8D, 0x8E, 0x8F => {
+        0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x86, 0x87 => {
             const operand: u3 = @truncate(instruction);
             const operandName = r8Map[operand];
             const ins = try std.fmt.allocPrint(allocator, "add a, {s}", .{operandName});
