@@ -7,6 +7,11 @@ const r16Map = [4][]const u8{ "bc", "de", "hl", "sp" };
 const r16MemMap = [4][]const u8{ "bc", "de", "hl+", "hl-" };
 const condMap = [4][]const u8{ "nz", "z", "nc", "c" };
 
+fn u16LitteEndian(byte1: u8, byte2: u8) u16 {
+    const val: u16 = byte1 + (@as(u16, byte2) << 8);
+    return val;
+}
+
 pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !Instruction {
     const instruction = bytes[0];
     return switch (instruction) {
@@ -17,7 +22,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         0x01, 0x11, 0x21, 0x31 => {
             const register: u2 = @truncate(instruction >> 4);
             const regName = r16Map[register];
-            const val: u16 = (bytes[1] << 4) + (bytes[2]);
+            const val: u16 = u16LitteEndian(bytes[1], bytes[2]);
             const ins = try std.fmt.allocPrint(allocator, "ld {s}, {d}", .{ regName, val });
             return .{ .str = ins, .length = 3 };
         },
@@ -40,7 +45,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
 
         //ls [imm16], sp
         0x08 => {
-            const val: u16 = (bytes[1] << 4) + (bytes[2]);
+            const val: u16 = u16LitteEndian(bytes[1], bytes[2]);
             const ins = try std.fmt.allocPrint(allocator, "ls [{d}], sp", .{val});
             return .{ .str = ins, .length = 3 };
         },
@@ -172,6 +177,125 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
             const operandName = r8Map[operand];
             const ins = try std.fmt.allocPrint(allocator, "sub a, {s}", .{operandName});
             return .{ .str = ins, .length = 1 };
+        },
+
+        //sbc a, r8
+        0x98, 0x99, 0x9A, 0x9B, 0x9C, 0x9D, 0x9E, 0x9F => {
+            const operand: u3 = @truncate(instruction);
+            const operandName = r8Map[operand];
+            const ins = try std.fmt.allocPrint(allocator, "sbc a, {s}", .{operandName});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //and a, r8
+        0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7 => {
+            const operand: u3 = @truncate(instruction);
+            const operandName = r8Map[operand];
+            const ins = try std.fmt.allocPrint(allocator, "and a, {s}", .{operandName});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //xor a, r8
+        0xA8, 0xA9, 0xAA, 0xAB, 0xAC, 0xAD, 0xAE, 0xAF => {
+            const operand: u3 = @truncate(instruction);
+            const operandName = r8Map[operand];
+            const ins = try std.fmt.allocPrint(allocator, "xor a, {s}", .{operandName});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //or a, r8
+        0xB0, 0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7 => {
+            const operand: u3 = @truncate(instruction);
+            const operandName = r8Map[operand];
+            const ins = try std.fmt.allocPrint(allocator, "or a, {s}", .{operandName});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //cp a, r8
+        0xB8, 0xB9, 0xBA, 0xBB, 0xBC, 0xBD, 0xBE, 0xBF => {
+            const operand: u3 = @truncate(instruction);
+            const operandName = r8Map[operand];
+            const ins = try std.fmt.allocPrint(allocator, "cp a, {s}", .{operandName});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //add a, imm8
+        0xC6 => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "add a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //adc a, imm8
+        0xCE => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "adc a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //sub a, imm8
+        0xD6 => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "sub a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //sbc a, imm8
+        0xDE => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "sbc a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //and a, imm8
+        0xE6 => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "and a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //xor a, imm8
+        0xEE => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "xor a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //or a, imm8
+        0xF6 => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "or a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //cp a, imm8
+        0xFE => {
+            const value = bytes[1];
+            const ins = try std.fmt.allocPrint(allocator, "cp a, {d}", .{value});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //ret cond
+        0xC0, 0xC8, 0xD0, 0xD8 => {
+            const condVal: u2 = @truncate(instruction >> 3);
+            const cond = condMap[condVal];
+            const ins = try std.fmt.allocPrint(allocator, "ret {s}", .{cond});
+            return .{ .str = ins, .length = 1 };
+        },
+
+        //ret
+        0xC9 => return .{ .str = "ret", .length = 1 },
+
+        //reti
+        0xD9 => return .{ .str = "reti", .length = 1 },
+
+        //jp cond imm16
+        0xC2, 0xCA, 0xD2, 0xDA => {
+            const cond: u2 = @truncate(instruction >> 3);
+            const condName = condMap[cond];
+            const val: u16 = u16LitteEndian(bytes[1], bytes[2]);
+            const ins = try std.fmt.allocPrint(allocator, "jp {s}, {d}", .{ condName, val });
+            return .{ .str = ins, .length = 3 };
         },
 
         else => unreachable,
