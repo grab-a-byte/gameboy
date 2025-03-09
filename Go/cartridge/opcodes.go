@@ -5,44 +5,11 @@ import (
 	"fmt"
 )
 
-var r8Map = [8]string{
-	"b",
-	"c",
-	"d",
-	"e",
-	"h",
-	"l",
-	"[hl]",
-	"a",
-}
-
-var r16Map = [4]string{
-	0: "bc",
-	1: "de",
-	2: "hl",
-	3: "sp",
-}
-
-var r16StkMap = [4]string{
-	0: "bc",
-	1: "de",
-	2: "hl",
-	3: "af",
-}
-
-var r16MemMap = [4]string{
-	0: "bc",
-	1: "de",
-	2: "hl+",
-	3: "hl-",
-}
-
-var condMap = [4]string{
-	0: "nz",
-	1: "z",
-	2: "nc",
-	3: "c",
-}
+var r8Map = [8]string{"b", "c", "d", "e", "h", "l", "[hl]", "a"}
+var r16Map = [4]string{"bc", "de", "hl", "sp"}
+var r16StkMap = [4]string{"bc", "de", "hl", "af"}
+var r16MemMap = [4]string{"bc", "de", "hl+", "hl-"}
+var condMap = [4]string{"nz", "z", "nc", "c"}
 
 // Values are broken up in line with https://gbdev.io/pandocs/CPU_Instruction_Set.html
 // as of 19/2/2025
@@ -57,20 +24,20 @@ func dissassembleNextBytes(bytes []byte) (string, int) {
 
 	//ld r16 imm16
 	case 0x01, 0x11, 0x21, 0x31:
-		param := (instruction & 0b0011000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16Map[param]
 		value := binary.LittleEndian.Uint16(bytes[1:3])
 		return fmt.Sprintf("ld %s, %d", paramName, value), 3
 
 	//ld [r16mem], a
 	case 0x02, 0x12, 0x22, 0x32:
-		param := (instruction & 0b0011000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16MemMap[param]
 		return fmt.Sprintf("ld [%s], a", paramName), 1
 
 	//ld a, [r16mem]
 	case 0x0A, 0x1A, 0x2A, 0x3A:
-		param := (instruction & 0b0011000) >> 4
+		param := (instruction & 0b00110000) >> 4
 		paramName := r16MemMap[param]
 		return fmt.Sprintf("ld a, [%s]", paramName), 1
 
@@ -93,25 +60,25 @@ func dissassembleNextBytes(bytes []byte) (string, int) {
 
 	//add hl, r16
 	case 0x09, 0x19, 0x29, 0x39:
-		param := (instruction & 0b00110000) >> 4
+		param := (instruction & 0b00111000) >> 4
 		paramName := r16Map[param]
-		return fmt.Sprintf("dec %s", paramName), 1
+		return fmt.Sprintf("add hl, %s", paramName), 1
 
 	//inc r8
 	case 0x04, 0x14, 0x24, 0x34, 0x0C, 0x1C, 0x2C, 0x3C:
-		operand := (instruction & 0b00110000) >> 3
+		operand := (instruction & 0b00111000) >> 3
 		paramName := r8Map[operand]
 		return fmt.Sprintf("inc %s", paramName), 1
 
 	//dec r8
 	case 0x05, 0x15, 0x25, 0x35, 0x0D, 0x1D, 0x2D, 0x3D:
-		operand := (instruction & 0b00110000) >> 3
+		operand := (instruction & 0b00111000) >> 3
 		paramName := r8Map[operand]
 		return fmt.Sprintf("dec %s", paramName), 1
 
 	//ld r8, imm8
 	case 0x06, 0x0E, 0x16, 0x1E, 0x26, 0x2E, 0x36, 0x3E:
-		operand := (instruction & 0b00110000) >> 3
+		operand := (instruction & 0b00111000) >> 3
 		paramName := r8Map[operand]
 		val := bytes[1]
 		return fmt.Sprintf("ld %s, %d", paramName, val), 2

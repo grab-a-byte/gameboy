@@ -4,9 +4,9 @@ const Instruction = struct { str: []const u8, length: u8 };
 
 const r8Map = [8][]const u8{ "b", "c", "d", "e", "h", "l", "[hl]", "a" };
 const r16Map = [4][]const u8{ "bc", "de", "hl", "sp" };
+const r16StkMap = [4][]const u8{ "bc", "de", "hl", "af" };
 const r16MemMap = [4][]const u8{ "bc", "de", "hl+", "hl-" };
 const condMap = [4][]const u8{ "nz", "z", "nc", "c" };
-const r16StkMap = [4][]const u8{ "bc", "de", "hl", "sp" };
 
 fn u16LitteEndian(byte1: u8, byte2: u8) u16 {
     const val: u16 = byte1 + (@as(u16, byte2) << 8);
@@ -44,10 +44,10 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
             return .{ .str = ins, .length = 1 };
         },
 
-        //ls [imm16], sp
+        //ld [imm16], sp
         0x08 => {
             const val: u16 = u16LitteEndian(bytes[1], bytes[2]);
-            const ins = try std.fmt.allocPrint(allocator, "ls [{d}], sp", .{val});
+            const ins = try std.fmt.allocPrint(allocator, "ld [{d}], sp", .{val});
             return .{ .str = ins, .length = 3 };
         },
 
@@ -224,56 +224,56 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         0xC6 => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "add a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //adc a, imm8
         0xCE => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "adc a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //sub a, imm8
         0xD6 => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "sub a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //sbc a, imm8
         0xDE => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "sbc a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //and a, imm8
         0xE6 => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "and a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //xor a, imm8
         0xEE => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "xor a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //or a, imm8
         0xF6 => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "or a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //cp a, imm8
         0xFE => {
             const value = bytes[1];
             const ins = try std.fmt.allocPrint(allocator, "cp a, {d}", .{value});
-            return .{ .str = ins, .length = 1 };
+            return .{ .str = ins, .length = 2 };
         },
 
         //ret cond
@@ -435,7 +435,7 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
         },
 
         //ldh [c], a
-        0xE2 => return .{ .str = "ldh, [c], a", .length = 1 },
+        0xE2 => return .{ .str = "ldh [c], a", .length = 1 },
 
         //ldh [imm8], a
         0xE0 => {
