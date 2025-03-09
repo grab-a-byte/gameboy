@@ -9,5 +9,9 @@ pub fn main() !void {
 
     const cart = try cartridge.New(allocator, bytes);
     const str = cart.String(allocator) catch "WARNING!";
-    std.debug.print("{s}\n", .{str});
+    // std.debug.print("{s}\n", .{str});
+
+    const output = try std.fs.cwd().createFile("example-dissassembled.txt", .{});
+
+    try output.writeAll(str);
 }

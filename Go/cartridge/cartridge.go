@@ -49,7 +49,7 @@ func New(bytes []byte) (*Cartridge, error) {
 
 	for i := 0x100; i < len(bytes); {
 		str, bytesUsed := dissassembleNextBytes(bytes[i:])
-		formatted := fmt.Sprintf("%d: %s", i, str)
+		formatted := fmt.Sprintf("%s", str)
 		i = i + bytesUsed
 		cart.instructions = append(cart.instructions, formatted)
 	}

@@ -8,7 +8,7 @@ const Cartridge = struct {
     cartrigeType: u8,
     romSize: u8,
     OldLicenseeCode: u8,
-    Instructions: [][]u8,
+    Instructions: [][]const u8,
 
     pub fn Destination(self: *Cartridge) ![]u8 {
         return if (self.DestinationCode == 0) "Japan" else "Overseas";
@@ -354,17 +354,21 @@ const Cartridge = struct {
         try writer.print("Cartridge Type: {s}\n", .{ct});
         try writer.print("ROM Size: {d}\n", .{self.RomSize()});
 
+        std.debug.print("{d}", .{self.Instructions.len});
+
+        for (self.Instructions) |instruction| {
+            try writer.print("{s}\n", .{instruction});
+        }
+
         return try list.toOwnedSlice();
     }
 };
 
-//TODO: Move byte constant addresses to actual consants with names
 pub fn New(alloc: std.mem.Allocator, cartridgeBytes: []u8) !Cartridge {
-
     var arr = std.ArrayList([]const u8).init(alloc);
 
     var i: u32 = 0x100;
-    while (i <= cartridgeBytes.len) {
+    while (i < cartridgeBytes.len) {
         const bytes = cartridgeBytes[i..];
         const ins = try opcodes.disassembleInstruction(alloc, bytes);
         try arr.append(ins.str);
@@ -378,6 +382,6 @@ pub fn New(alloc: std.mem.Allocator, cartridgeBytes: []u8) !Cartridge {
         .OldLicenseeCode = cartridgeBytes[0x014B],
         .romSize = cartridgeBytes[0x148],
         .cartrigeType = cartridgeBytes[0x0147],
-        .Instructions = undefined,
+        .Instructions = arr.items,
     };
 }
