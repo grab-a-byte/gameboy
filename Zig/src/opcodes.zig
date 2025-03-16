@@ -496,10 +496,57 @@ pub fn disassembleInstruction(allocator: std.mem.Allocator, bytes: []const u8) !
     };
 }
 
-test "dissassemble instruction" {
+test "dissassemble single byte instruction" {
     const expect = std.testing.expect;
-    const instructions = [_]u8{0x00};
-    const nop = try disassembleInstruction(std.testing.allocator, instructions[0..]);
-    try expect(std.mem.eql(u8, nop.str, "nop"));
-    try expect(nop.length == 1);
+    const instructions = [_]u8{
+        0b00000000,
+        0b00000111,
+        0b00001111,
+        0b00010111,
+        0b00011111,
+        0b00100111,
+        0b00101111,
+        0b00110111,
+        0b00111111,
+        0b00010000,
+        0b01110110,
+        0b11001001,
+        0b11011001,
+        0b11101001,
+        0b11100010,
+        0b11110010,
+        0b11111001,
+        0b11110011,
+        0b11111011,
+    };
+
+    const expected = [_][]const u8{
+        "nop",
+        "rlca",
+        "rrca",
+        "rla",
+        "rra",
+        "daa",
+        "cpl",
+        "scf",
+        "ccf",
+        "stop",
+        "halt",
+        "ret",
+        "reti",
+        "jp hl",
+        "ldh [c], a",
+        "ldh a, [c]",
+        "ld sp, hl",
+        "di",
+        "ei",
+    };
+
+    for (0..instructions.len) |index| {
+        const diss = try disassembleInstruction(std.testing.allocator, instructions[index..]);
+        try expect(std.mem.eql(u8, diss.str, expected[index]));
+        try expect(diss.length == 1);
+    }
 }
+
+test "Arithmatic Dissassembly" {}
