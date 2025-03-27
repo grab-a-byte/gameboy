@@ -19,5 +19,3 @@
 - Harder to catch silly mistakes in bit masking (had several where did not have enough 0's and was masking over 7 bits)
 - Needing runime built alongside makes binaries larger by default
 
-- Go binary file size = 2,409,472 bytes == 2.4Mb, (giving flags -s -w to strip debug symbols, 1,608,192 == 1.6Mb)
-- Zig binary size = 814,776 == 0.8Mb

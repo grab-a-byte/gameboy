@@ -376,9 +376,9 @@ pub fn New(alloc: std.mem.Allocator, cartridgeBytes: []u8) !Cartridge {
     }
 
     return Cartridge{
-        .Title = cartridgeBytes[0x134..(0x143 + 1)], //TODO Trim Zeroes
+        .Title = cartridgeBytes[0x134..(0x143 + 1)],
         .ManufacturerCode = cartridgeBytes[0x13F..(0x142 + 1)].*, //Unsure how to check if this is an actual thing, docs say may be part of title
-        .NewLicenseeCode = cartridgeBytes[0x144..0x146].*, //Actually 0x145 but add one as not inclusive
+        .NewLicenseeCode = cartridgeBytes[0x144 .. 0x145 + 1].*,
         .OldLicenseeCode = cartridgeBytes[0x014B],
         .romSize = cartridgeBytes[0x148],
         .cartrigeType = cartridgeBytes[0x0147],
